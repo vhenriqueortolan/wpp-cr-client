@@ -1,21 +1,25 @@
 "use client";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
 
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 let socket: any;
 
-export default function AdminPage() {
+export default function UserPage() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const userId = localStorage.getItem('user')
 
   useEffect(() => {
-    socket =  io("http://localhost:5000" );
+    socket =  io(`${process.env.URI}`);
 
     socket.on("connect", () => {
       console.log("Conectado ao WebSocket");
-      const userId = '679aadd360278851c41b0cd0';
       socket.emit('check-status', userId)
     });
 
@@ -40,14 +44,12 @@ export default function AdminPage() {
 
   }, []);
 
-  // useEffect(()=>{
-  //   const userId = '679aadd360278851c41b0cd0';
-  //   socket.emit('connected', userId)
-  //   setIsLoading(true)
-  // }, [qrCode])
+  useEffect(()=>{
+    socket.emit('connected', userId)
+    setIsLoading(true)
+  }, [qrCode])
 
   const startSession = () => {
-    const userId = '679aadd360278851c41b0cd0';
     socket.emit("start-session", userId);
   };
 

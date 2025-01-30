@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:5000/login", {
+    const res = await fetch(`${process.env.URI}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

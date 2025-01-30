@@ -3,6 +3,10 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
 
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 let socket: any;
 
 export default function UserPage() {
@@ -11,7 +15,7 @@ export default function UserPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    socket =  io("http://localhost:5000" );
+    socket =  io(`${process.env.URI}`);
 
     socket.on("connect", () => {
       console.log("Conectado ao WebSocket");
