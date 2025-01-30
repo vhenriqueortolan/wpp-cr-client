@@ -14,11 +14,10 @@ export default function UserPage() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const router = useRouter();
 
   useEffect(() => {
     const userId = localStorage.getItem('user')
-    
+
     socket =  io(`${process.env.URI}`);
 
     socket.on("connect", () => {
@@ -48,16 +47,18 @@ export default function UserPage() {
   }, []);
 
   useEffect(()=>{
+    const userId = localStorage.getItem('user')
     socket.emit('connected', userId)
     setIsLoading(true)
   }, [qrCode])
 
   const startSession = () => {
+    const userId = localStorage.getItem('user')
     socket.emit("start-session", userId);
   };
 
   const deleteSession = () => {
-    const userId = '679aadd360278851c41b0cd0';
+    const userId = localStorage.getItem('user')
     socket.emit("delete-session", userId);
   };
 
