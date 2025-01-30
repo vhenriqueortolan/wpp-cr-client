@@ -3,11 +3,6 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
 
-import dotenv from 'dotenv'
-import { useRouter } from "next/router";
-
-dotenv.config()
-
 let socket: any;
 
 export default function UserPage() {
@@ -18,7 +13,7 @@ export default function UserPage() {
   useEffect(() => {
     const userId = localStorage.getItem('user')
 
-    socket =  io(`${process.env.URI}`);
+    socket =  io(`https://whatsapp-cr.onrender.com`);
 
     socket.on("connect", () => {
       console.log("Conectado ao WebSocket");

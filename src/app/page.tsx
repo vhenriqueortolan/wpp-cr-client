@@ -11,7 +11,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    socket =  io("http://localhost:5000" );
+    socket =  io("https://whatsapp-cr.onrender.com" );
 
     socket.on("connect", () => {
       console.log("Conectado ao WebSocket");

@@ -15,7 +15,7 @@ export default function UserPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    socket =  io(`${process.env.URI}`);
+    socket =  io(`https://whatsapp-cr.onrender.com`);
 
     socket.on("connect", () => {
       console.log("Conectado ao WebSocket");
