@@ -5,7 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 
 let socket: any;
 
-export default function Dashboard() {
+export default function UserPage() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -40,11 +40,11 @@ export default function Dashboard() {
 
   }, []);
 
-  // useEffect(()=>{
-  //   const userId = '679aadd360278851c41b0cd0';
-  //   socket.emit('connected', userId)
-  //   setIsLoading(true)
-  // }, [qrCode])
+  useEffect(()=>{
+    const userId = '679aadd360278851c41b0cd0';
+    socket.emit('connected', userId)
+    setIsLoading(true)
+  }, [qrCode])
 
   const startSession = () => {
     const userId = '679aadd360278851c41b0cd0';

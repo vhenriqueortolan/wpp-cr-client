@@ -5,7 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 
 let socket: any;
 
-export default function Dashboard() {
+export default function AdminPage() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
