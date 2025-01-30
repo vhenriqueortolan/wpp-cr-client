@@ -14,14 +14,11 @@ export default function UserPage() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const userId = localStorage.getItem('user') || null
   const router = useRouter();
 
-  if(!userId){
-    router.push('/login')
-  }
-
   useEffect(() => {
+    const userId = localStorage.getItem('user')
+    
     socket =  io(`${process.env.URI}`);
 
     socket.on("connect", () => {
