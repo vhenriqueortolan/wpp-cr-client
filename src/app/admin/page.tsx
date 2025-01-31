@@ -20,7 +20,7 @@ export default function UserPage() {
     if(userId){
       console.log(userId)
 
-      socket =  io(`http://localhost:5000`);
+      socket =  io(`https://whatsapp-cr.onrender.com`);
 
       socket.on("connect", () => {
         console.log("Conectado ao WebSocket");
