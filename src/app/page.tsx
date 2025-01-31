@@ -2,6 +2,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
+import RouteGuard from "@/components/RouteGuard";
 
 let socket: any;
 
@@ -57,7 +58,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 justify-items-center">
+    <RouteGuard>
+      <div className="p-6 justify-items-center">
       <h2 className="text-2xl mb-4 text-center">Dashboard</h2>
       {sessionStatus ? (
         <>
@@ -89,6 +91,8 @@ export default function Dashboard() {
         </>
       )
       }
-    </div>
+      </div>
+    </RouteGuard>
+    
   );
 }
