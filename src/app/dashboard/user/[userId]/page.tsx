@@ -1,30 +1,35 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
-import { useRouter } from "next/navigation";
 import RouteGuard from "@/components/RouteGuard";
+
+import dotenv from 'dotenv'
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
+
+dotenv.config()
 
 let socket: any;
 
-export default function UserPage() {
+const UserPage = () => {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [checking, setChecking] = useState<boolean>(false)
   const router = useRouter()
+  const {user} = useAuth()
 
   useEffect(() => {
-    const userId = localStorage.getItem('user')
 
-    if(userId){
-      console.log(userId)
+    if(user?.userId){
+      console.log(user?.userId)
 
       socket =  io(`https://whatsapp-cr.onrender.com`);
 
       socket.on("connect", () => {
         console.log("Conectado ao WebSocket");
-        socket.emit('check-status', userId)
+        socket.emit('check-status', user?.userId)
       });
   
       socket.on("qr-code", (qr: any) => {
@@ -36,7 +41,6 @@ export default function UserPage() {
         console.log(message.status)
         setIsLoading(false)
         setSessionStatus(message.status);
-        // setQrCode(null); // Remove o QR Code após a conexão
       });
   
       socket.on("error", (message: any) => {
@@ -53,21 +57,18 @@ export default function UserPage() {
 
   useEffect(()=>{
     if(checking === true){
-      const userId = localStorage.getItem('user')
       setIsLoading(true)
-      socket.emit('connected', userId)
+      socket.emit('connected', user?.userId)
     }
   }, [checking])
 
   const startSession = () => {
-    const userId = localStorage.getItem('user')
-    socket.emit("start-session", userId);
+    socket.emit("start-session", user?.userId);
     setChecking(true)
   };
 
   const deleteSession = () => {
-    const userId = localStorage.getItem('user')
-    socket.emit("delete-session", userId);
+    socket.emit("delete-session", user?.userId);
   };
 
   const logout = () => {
@@ -76,17 +77,17 @@ export default function UserPage() {
   }
 
   return (
-    <RouteGuard>
+   <>
       <div className="content-center h-screen w-96">
       <h2 className="w-full text-2xl mb-4 text-center">Dashboard</h2>
       {sessionStatus ? (
         <>
           <div className="bg-white p-6 rounded shadow-md content-center">
             <p className="w-full text-center mb-4">
-              Status da sessão: {sessionStatus}
+              status da sessão: {sessionStatus}
             </p>
-            <button onClick={deleteSession} className="bg-red-500 text-white p-2 rounded w-full">
-              Finalizar Sessão
+            <button onClick={deleteSession} className="bg-red-500 text-white p-2 rounded w-full font-bold">
+              finalizar sessão
             </button>
           </div>
         </>
@@ -112,6 +113,14 @@ export default function UserPage() {
       }
       <p className="text-center mt-4 link hover:underline decoration-red-500 cursor-pointer" onClick={logout}>Logout</p>
     </div>
-    </RouteGuard>    
+    </>    
   );
 }
+
+const ProtectedUserPage = () => (
+  <RouteGuard>
+    {<UserPage />}
+  </RouteGuard>
+);
+
+export default ProtectedUserPage

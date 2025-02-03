@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dotenv from 'dotenv'
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import LoadingModal from "@/components/LoadingModal";
 import RouteGuard from "@/components/RouteGuard";
 
 dotenv.config()
 
-const LoginPage = () => {
+const LoginPhotoPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +42,7 @@ const LoginPage = () => {
     <div className="flex justify-center items-center h-screen">
       {!loading ? (
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
-            <h2 className="text-2xl mb-4 font-bold">login</h2>
+            <h2 className="text-2xl mb-4 font-bold text-center">login | fotógrafo</h2>
             {error && <p className="text-red-500">{error}</p>}
             <input
             type="text"
@@ -69,10 +69,10 @@ const LoginPage = () => {
   );
 }
 
-const ProtectedLoginPage = () => (
+const ProtectedLoginPhotoPage = () => (
     <RouteGuard>
-      {<LoginPage/>}
+      {<LoginPhotoPage/>}
     </RouteGuard>
   );
   
-  export default ProtectedLoginPage;
+  export default ProtectedLoginPhotoPage;
