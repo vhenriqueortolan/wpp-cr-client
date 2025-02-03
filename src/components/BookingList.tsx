@@ -37,26 +37,57 @@ export default function BookingList() {
   useEffect(() => {
     setLoading(true)
     async function fetchAppointments() {
-        const response:any = await fetch("https://whatsapp-cr.onrender.com/booking/list"); 
-        const data = await response.json();
+        const response:any = await fetch("https://whatsapp-cr.onrender.com/booking/list");
+        const {allBookings} = await response.json();
         
-        const currentDate = new Date(
-            new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
-          );
-        const appointmentsArray = Array.isArray(data.data) ? data.data : [];
+        const formatter = new Intl.DateTimeFormat("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+      });
+      
+      const parts = formatter.formatToParts(new Date());
+      const dateParts = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+      
+      const currentDate = new Date(
+          `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}-03:00`
+      );
+        const appointmentsArray = Array.isArray(allBookings) ? allBookings : [];
 
       // Agrupar os agendamentos por data
-        const groupedSessions = appointmentsArray.reduce((acc: { [date: string]: Appointment[] }, appointment: any) => {
-            const date = appointment.schedule.start.day; // Exemplo: "30/01/2025"
+      const groupedSessions = appointmentsArray.reduce(
+        (acc: { [date: string]: Appointment[] }, appointment: any) => {
+            const date = appointment.schedule?.start?.day?.trim();
+            const hour = appointment.schedule?.start?.hour?.trim();
+
+            if (!date || !hour) {
+                console.warn("Invalid appointment (missing date/hour):", appointment);
+                return acc;
+            }
+
             const [day, month, year] = date.split("/").map(Number);
-            const appointmentDate = new Date(year, month - 1, day, ...appointment.schedule.start.hour.split(":").map(Number));
-            if (appointmentDate < currentDate) return acc;
+            const [hourPart, minutePart] = hour.split(":").map(Number);
+
+            // Criando a data do agendamento
+            const appointmentDate = new Date(year, month - 1, day, hourPart, minutePart);
+
+            // Comparação entre datas
+            const isFuture = appointmentDate >= currentDate;
+
+            if (!isFuture) return acc; // Filtra agendamentos passados
+
             if (!acc[date]) acc[date] = [];
             acc[date].push(appointment);
             return acc;
-        }, {});
+        },
+        {}
+    );
 
-            // Ordenar as datas de forma decrescente (do mais recente para o mais antigo)
+            // Ordenar as datas de forma crescente
         const sortedSessions = Object.entries(groupedSessions).sort(([dateA], [dateB]) => {
             const [dayA, monthA, yearA] = dateA.split("/").map(Number);
             const [dayB, monthB, yearB] = dateB.split("/").map(Number);

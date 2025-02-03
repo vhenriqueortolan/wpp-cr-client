@@ -1,5 +1,4 @@
 "use client";
-import {jwtDecode} from 'jwt-decode'
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from '@/app/context/AuthContext';
@@ -17,63 +16,64 @@ const RouteGuard =  ({
   const {token, user} = useAuth()
 
 
-  useEffect(() => {
-    console.log("Token:", token);
-    console.log("User:", user);
-    console.log("Pathname:", pathname);
+//   useEffect(() => {
+//     console.log("Token:", token);
+//     console.log("User:", user);
+//     console.log("Pathname:", pathname);
 
-    const publicRoutes = ["/login", "/booking/login"];
+//     // const publicRoutes = ["/login", "/booking/login"];
 
-    if (!token) {
-      console.log("Token não encontrado.");
+//     // if (!token) {
+//     //   console.log("Token não encontrado.");
+//     //     setTimeout(()=>{
+//     //         if (!user){
+//     //             if (!publicRoutes.includes(pathname)) {
+//     //                 console.log("Redirecionando para login.");
+//     //                 router.push("/login");
+//     //               }
+//     //         setLoading(false);
+//     //         return;
+//     //         }
+//     //     }, 2000)
+//     // }
 
-      if (!publicRoutes.includes(pathname)) {
-        console.log("Redirecionando para login.");
-        router.push("/login");
-      }
+//     // if (token && !user) {
+//     //   console.log("Token encontrado, aguardando carregamento do user...");
+//     //   return; // Aguarda o carregamento do user
+//     // }
 
-      setLoading(false);
-      return;
-    }
+//     // if (user) {
+//     //   console.log("Usuário autenticado:", user.role);
 
-    if (token && !user) {
-      console.log("Token encontrado, aguardando carregamento do user...");
-      return; // Aguarda o carregamento do user
-    }
+//     //   if (pathname === "/") {
+//     //     if (user.role === "admin") {
+//     //         setLoading(false);
+//     //         return
+//     //     } else if (user.role === "user") {
+//     //       router.push(`/dashboard/user/${user.userId}`);
+//     //     } else if (user.role === "photo") {
+//     //       router.push("/booking/list");
+//     //     }
+//     //     return;
+//     //   }
 
-    if (user) {
-      console.log("Usuário autenticado:", user.role);
+//     //   if (publicRoutes.includes(pathname)) {
+//     //     if (user.role === "admin") {
+//     //       router.push("/");
+//     //     } else if (user.role === "user") {
+//     //       router.push(`/dashboard/user/${user.userId}`);
+//     //     } else if (user.role === "photo") {
+//     //       router.push("/booking/list");
+//     //     }
+//     //     return;
+//     //   }
+//     // }
 
-      if (pathname === "/") {
-        if (user.role === "admin") {
-          router.push("/");
-        } else if (user.role === "user") {
-          router.push(`/dashboard/user/${user.userId}`);
-        } else if (user.role === "photo") {
-          router.push("/booking/list");
-        }
-        return;
-      }
-
-      if (publicRoutes.includes(pathname)) {
-        if (user.role === "admin") {
-          router.push("/");
-        } else if (user.role === "user") {
-          router.push(`/dashboard/user/${user.userId}`);
-        } else if (user.role === "photo") {
-          router.push("/booking/list");
-        }
-        return;
-      }
-    }
-
-    setLoading(false);
-  }, [token, user, router, pathname]);
+//     setLoading(false);
+//   }, []);
 
     return (
-    <> 
-         { loading ? <LoadingModal /> : children}
-    </>); 
+    <>{ children}</>); 
 };
 
 export default RouteGuard;
