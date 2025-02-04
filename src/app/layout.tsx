@@ -3,7 +3,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
 import "./globals.css";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "../context/AuthContext";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,27 +52,26 @@ export default function RootLayout({
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, logout } = useAuth(); // Agora podemos usar o contexto
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      <nav className="h-12 w-full px-8 flex items-center justify-between bg-orange-500 text-white font-bold">
+      <nav className="relative h-12 w-full px-8 flex items-center justify-between bg-orange-500 text-white font-bold">
         {user ? (
           <>
           <span className="">olá, {user.name}!</span>
-          <div className="flex items-center space-x-4">
-            {user.role == 'admin' ? (
-              <>
-              <a className="inline hover:underline decoration-black cursor-pointer" href="/booking/list">agendamentos</a>
-              <a className="inline hover:underline decoration-black cursor-pointer" href="/">painel admin</a>
-              <p onClick={logout} className="justify-self-end inline hover:underline decoration-black cursor-pointer">logout</p>
-              </>
-            ) : (
-              <li><span className="hover:underline decoration-red-500 cursor-pointer" onClick={logout}>logout</span></li>
-            )}
+          <div>
+          <button onClick={()=>setIsOpen(!isOpen)} className="fixed top-3 right-5 z-10"> {isOpen ? <X size={28} /> : <Menu size={28} />}</button>
+            <div className={`${isOpen ? '' : 'hidden overflow-hidden' }fixed flex flex-col items-center space-y-4 bg-orange-500 top-10 right-3 w-[175px] p-6 rounded shadow-md `}>
+                <a className="text-center w-full inline cursor-pointer rounded shadow-md hover:bg-orange-600 p-2 hover:scale-110" href="/booking/list">agendamentos</a>
+                <a className={`text-center w-full inline  cursor-pointer ${user.role === 'admin' ? '' : 'hidden'} rounded shadow-md hover:bg-orange-600 p-2 hover:scale-110`} href="/dashboard/admin">painel admin</a>
+                <p onClick={()=>logout()} className="text-center w-full justify-self-end inline cursor-pointer rounded shadow-md hover:bg-orange-600 p-2 hover:scale-110">logout</p>
+            </div>
           </div>
+          
         </>
         ) : (
-          <span>Não autenticado</span>
+          <span>não autenticado</span>
         )}
       </nav>
       <main>{children}</main>

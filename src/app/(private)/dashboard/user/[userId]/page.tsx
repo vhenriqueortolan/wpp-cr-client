@@ -2,17 +2,15 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
-import RouteGuard from "@/components/RouteGuard";
-
 import dotenv from 'dotenv'
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 dotenv.config()
 
 let socket: any;
 
-const UserPage = () => {
+export default function UserPage(){
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -116,11 +114,3 @@ const UserPage = () => {
     </>    
   );
 }
-
-const ProtectedUserPage = () => (
-  <RouteGuard>
-    {<UserPage />}
-  </RouteGuard>
-);
-
-export default ProtectedUserPage

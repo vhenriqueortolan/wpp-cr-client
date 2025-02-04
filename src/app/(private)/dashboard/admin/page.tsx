@@ -3,13 +3,12 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { QRCodeCanvas } from "qrcode.react";
 import { useRouter } from "next/navigation";
-import RouteGuard from "@/components/RouteGuard";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import LoadingModal from "@/components/LoadingModal";
 
 let socket: any;
 
-const AdminPage = () => {
+export default function AdminPage(){
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -18,39 +17,37 @@ const AdminPage = () => {
   const { user } = useAuth()
 
   useEffect(() => {
-
-    if(user?.userId){
-      console.log(user.userId)
-
-      socket =  io(`https://whatsapp-cr.onrender.com`);
-
-      socket.on("connect", () => {
-        console.log("Conectado ao WebSocket");
-        socket.emit('check-status', user.userId)
-      });
+      if(user?.userId){
+        console.log(user.userId)
   
-      socket.on("qr-code", (qr: any) => {
-        console.log(qr)
-        setQrCode(qr);
-      });
+        socket =  io(`https://whatsapp-cr.onrender.com`);
   
-      socket.on("session-started", (message: any) => {
-        console.log(message.status)
-        setIsLoading(false)
-        setSessionStatus(message.status);
-      });
-  
-      socket.on("error", (message: any) => {
-        alert(message);
-      });
-  
-      socket.on('disconnected', ()=>{
-        setSessionStatus(null)
-        setIsLoading(false)
-      })
-    }
-
-  }, []);
+        socket.on("connect", () => {
+          console.log("Conectado ao WebSocket");
+          socket.emit('check-status', user.userId)
+        });
+    
+        socket.on("qr-code", (qr: any) => {
+          console.log(qr)
+          setQrCode(qr);
+        });
+    
+        socket.on("session-started", (message: any) => {
+          console.log(message.status)
+          setIsLoading(false)
+          setSessionStatus(message.status);
+        });
+    
+        socket.on("error", (message: any) => {
+          alert(message);
+        });
+    
+        socket.on('disconnected', ()=>{
+          setSessionStatus(null)
+          setIsLoading(false)
+        })
+      }
+  }, [user]);
 
   useEffect(()=>{
     if(checking === true){
@@ -109,11 +106,3 @@ const AdminPage = () => {
     
   );
 }
-
-const ProtectedAdminPage = () => (
-  <RouteGuard>
-    {<AdminPage/>}
-  </RouteGuard>
-);
-
-export default ProtectedAdminPage;

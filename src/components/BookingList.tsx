@@ -29,7 +29,7 @@ export default function BookingList() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [update, setUpdate] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState<string | null>(null)
 
   const openRejectModal = () => setShowRejectModal(true);
@@ -100,10 +100,10 @@ export default function BookingList() {
             // Reorganizando para um objeto com as datas ordenadas
             const orderedSessions: any = Object.fromEntries(sortedSessions);
             setSessions(orderedSessions);
+            setLoading(false)
     }
 
     fetchAppointments();
-    setLoading(false)
     if(update){
       setUpdate(false)
     }
@@ -197,13 +197,15 @@ export default function BookingList() {
                   <li
                     key={appointment.id}
                     className={`p-4 mb-4 rounded shadow-md cursor-pointer hover:bg-gray-100 ${
-                        appointment.trigger === 'BOOKING_CANCELLED' ? 'bg-red-200' : 'bg-white'
+                        appointment.trigger === 'BOOKING_CANCELLED' || appointment.trigger === 'BOOKING_REJECTED' 
+                        ? 'bg-red-200' 
+                        : 'bg-white'
                       }`}
                     onClick={() => setSelectedAppointment(appointment)}
                   >
                     {appointment.schedule.start.hour} - {appointment.broker.name} | {appointment.agency} {appointment.status == 'PENDING' ? (
                         <p className="font-bold">status: pendente</p>
-                    ) : appointment.trigger == 'BOOKING_CREATED' || appointment.trigger == 'BOOKING_RESCHEDULE' ? (
+                    ) : appointment.status === 'ACCEPTED' || appointment.trigger === 'BOOKING_CREATED' || appointment.trigger === 'BOOKING_RESCHEDULE' ? (
                         <p>status: aceito</p>
                     ) : appointment.trigger == 'BOOKING_REJECTED' ? (
                         <p>status: recusado</p>
@@ -220,9 +222,9 @@ export default function BookingList() {
 
       {/* Modal de Detalhes */}
       {selectedAppointment && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 ">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
           <div className={`${selectedAppointment.trigger == 'BOOKING_CANCELLED' || selectedAppointment.trigger == 'BOOKING_REJECTED' 
-          ? 'bg-red-100' : 'bg-white'} p-6 rounded-lg shadow-lg w-[500px]`}>
+          ? 'bg-red-100' : 'bg-white'} p-6 rounded-lg shadow-lg max-w-[350px] md:max-w-[500px]`}>
             <h3 className="text-xl font-bold">agência {selectedAppointment.agency}</h3>
 
             {/* 📆 Data e Horário (início - fim) */}
@@ -251,8 +253,8 @@ export default function BookingList() {
             <p className="text-gray-600 mt-1">Serviço: {selectedAppointment.services}</p>
             <p className="text-gray-600 mt-1">Status: {' '}
                 {selectedAppointment.status == 'PENDING' ? (
-                <span>Pendente</span>
-            ) : selectedAppointment.trigger =='BOOKING_CREATED' || selectedAppointment.trigger == 'BOOKING_RESCHEDULE' ? (
+                <span className="font-bold">Pendente</span>
+            ) : selectedAppointment.status === 'ACCEPTED' || selectedAppointment.trigger =='BOOKING_CREATED' || selectedAppointment.trigger == 'BOOKING_RESCHEDULE' ? (
                 <span>Aceito</span>
             ) : selectedAppointment.trigger == 'BOOKING_REJECTED' ? (
                 <span>Rejeitado</span>
@@ -261,7 +263,7 @@ export default function BookingList() {
             )}
             </p>
             {selectedAppointment.notes && (
-              <p className="text-gray-500 mt-2">Observações: {selectedAppointment.notes}</p>
+              <p className="text-gray-500 mt-2">{selectedAppointment.notes}</p>
             )}
 
             {/* Exibição das razões (se existirem) */}
@@ -278,28 +280,28 @@ export default function BookingList() {
             )}
 
             {/* 🔘 Botões de Ação */}
-            <div className="flex justify-end mt-4 space-x-1">
+            <div className="flex flex-col space-y-1 justify-center items-center mt-4 md:flex-row md:space-x-1">
                 {selectedAppointment.status === "PENDING" && (
                 <>
                     <button
                     onClick={() => handleAccept()}
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center gap-2"
+                    className="justify-center w-[180px] bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center gap-2"
                     >
                     <Check size={16} /> Aceitar
                     </button>
                     <button
                     onClick={() => openRejectModal()}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 flex items-center gap-2"
+                    className="justify-center w-[180px] bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 flex items-center gap-2"
                     >
                     <X size={16} /> Rejeitar
                     </button>
                 </>
                 )}
 
-                {selectedAppointment.status !== "PENDING" && selectedAppointment.trigger !== "BOOKING_CANCELLED" && (
+                {selectedAppointment.status !== "PENDING" && selectedAppointment.trigger !== "BOOKING_CANCELLED" && selectedAppointment.trigger !== 'BOOKING_REJECTED' &&(
                 <button
                     onClick={() => handleCancel()}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center gap-2"
+                    className="justify-center w-[180px] md:w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center gap-2"
                 >
                     <Trash2 size={16} /> Cancelar
                 </button>
@@ -309,14 +311,14 @@ export default function BookingList() {
                 href={`https://wa.me/${selectedAppointment.broker.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 flex items-center gap-2"
+                className="justify-center w-[180px] bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center gap-2"
                 >
                 <MessageCircle size={16} /> WhatsApp
                 </a>
 
                 <button
                 onClick={() => setSelectedAppointment(null)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center gap-2"
+                className="justify-center w-[180px] bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center gap-2"
                 >
                 <X size={16} /> Fechar
                 </button>

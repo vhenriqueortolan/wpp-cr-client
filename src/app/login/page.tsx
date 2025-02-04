@@ -2,13 +2,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dotenv from 'dotenv'
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import LoadingModal from "@/components/LoadingModal";
-import RouteGuard from "@/components/RouteGuard";
 
 dotenv.config()
 
-const LoginPage = () => {
+export default function LoginPage(){
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,20 +21,20 @@ const LoginPage = () => {
 
     setLoading(true)
 // `https://whatsapp-cr.onrender.com/login`
-    const res = await fetch(`https://whatsapp-cr.onrender.com/login`, {
+    const res = await fetch(`/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await res.json();
+    const data:any = await res.json();
     if (!res.ok) {
         setLoading(false)
         setError(data.error);
         return;
     }
 
-    login(data.token)
+    login(data.user, data.token)
   };
 
   return (
@@ -68,11 +67,3 @@ const LoginPage = () => {
     </div>
   );
 }
-
-const ProtectedLoginPage = () => (
-    <RouteGuard>
-      {<LoginPage/>}
-    </RouteGuard>
-  );
-  
-  export default ProtectedLoginPage;

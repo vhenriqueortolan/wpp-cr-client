@@ -14,8 +14,8 @@ export interface User {
 // Tipagem do contexto
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (token: string) => void;
+  token: string | null
+  login: (user: User, token: AuthContextType['token']) => void;
   logout: () => void;
 }
 
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Carrega o usuário do localStorage ao iniciar
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
+    const storedToken = token || localStorage.getItem("token");
     if (storedToken) {
       try {
         const decoded: User = jwtDecode(storedToken);
@@ -48,26 +48,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error("Token inválido, removendo...");
         localStorage.removeItem("token");
+        router.push('/login')
       }
     }
   }, []);
 
   // Função para login
-  const login = (newToken: string) => {
-    localStorage.setItem("token", newToken);
-    const decoded: User = jwtDecode(newToken);
-    console.log({...decoded})
-    setUser(decoded);
-    setToken(newToken);
-    router.push(decoded.role == 'admin' ? "/" : decoded.role == 'photo' ? '/booking/list' : `/dashboard/user/${decoded.userId}`); // Redireciona baseado na role
+  const login = (user: User, token: AuthContextType['token']) => {
+    console.log({...user})
+    setToken(token)
+    localStorage.setItem('token', token as string)
+    setUser(user);
+    router.push(user.role == 'admin' ? "/dashboard/admin" : user.role == 'photo' ? '/booking/list' : `/dashboard/user/${user.userId}`); // Redireciona baseado na role
   };
 
   // Função para logout
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    setToken(null);
-    router.push("/login");
+  const logout = async () => {
+    const res = await fetch( '/api/auth/logout', { method: 'POST' })
+    if(res.ok){
+      localStorage.removeItem('token')
+      setUser(null);
+      setToken(null);
+      window.location.href = '/login';
+    }
   };
 
   return (
